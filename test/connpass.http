@@ -1,0 +1,5 @@
+### ymd
+https://connpass.com/api/v1/event/?ymd=20220917,20220918&count=100&order=2
+
+### ym
+https://connpass.com/api/v1/event/?ym=202209&count=100&order=2
