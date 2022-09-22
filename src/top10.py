@@ -5,6 +5,9 @@ from driver import connpass
 
 # 初期化
 st.set_page_config(
+    menu_items={
+        'Report a bug': "https://github.com/otowmoyarng/EventAnalysis/issues"
+    },
     page_title="connpass人気イベント",
     layout="wide")
 
