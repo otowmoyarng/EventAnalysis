@@ -1,10 +1,12 @@
-from asyncore import loop
-import connpass
+import setup
+setup.AddModulePath()
+
+import unittest
 from datetime import datetime, timedelta
 from typing import List, Dict
-import unittest
+from driver import connpass
 
-class ConnpassTest(unittest.TestCase):
+class TestConnpass(unittest.TestCase):
     
     def test_GetTargetDate(self):
         """[summary]
@@ -24,7 +26,7 @@ class ConnpassTest(unittest.TestCase):
     
     def test_CallConnpassAPI(self):
         def traceEventData(events: Dict, startindex: int = 1):
-            print(f"startindex:{str(startindex)}")
+            # print(f"startindex:{str(startindex)}")
             columns = ["event_id","title","started_at","ended_at","updated_at","limit","accepted","waiting","event_url"]
             
             headerText = ''
@@ -32,7 +34,7 @@ class ConnpassTest(unittest.TestCase):
                 if headerText != '':
                     headerText += ","
                 headerText += column
-            print(headerText)
+            # print(headerText)
                  
             loopCount: int = 0
             for event in events["events"]:
@@ -48,7 +50,7 @@ class ConnpassTest(unittest.TestCase):
                         recordText += event[column]
                     else:
                         recordText += str(event[column])
-                print(recordText)
+                # print(recordText)
                 loopCount += 1
         
         # 処理日で実行する
@@ -58,6 +60,9 @@ class ConnpassTest(unittest.TestCase):
         # 処理日で実行する
         startindex += 100
         traceEventData(connpass.CallConnpassAPI(startindex), startindex)
+
+    def test_GetEventData(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
