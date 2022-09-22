@@ -1,5 +1,6 @@
 from datetime import datetime,timedelta
 from typing import List, Dict
+import copy
 import requests
 
 columns = ["event_id","title","started_at","ended_at","updated_at","limit","accepted","waiting","event_url"]
@@ -8,7 +9,7 @@ def GetTargetDate(days: int = 0) -> datetime:
     """[summary]
     抽出日を返す
     Args:
-        days (int): 加算日
+        days (int): 加算日 デフォルト0
     Returns:
         (datetime): 抽出日
     """
@@ -23,7 +24,6 @@ def CallConnpassAPI(startindex: int = 1) -> Dict:
     """[summary]
     ConnpassAPIを実行し、実行結果をJSONで取得する
     Args:
-        eventdate (str): 開催日
         startindex (int): 開始位置 デフォルト1
     Returns:
         (dict): 実行結果
@@ -50,11 +50,11 @@ def CallConnpassAPI(startindex: int = 1) -> Dict:
         print('Error code: ', e.code)
         raise e
 
-def GetEventData() -> List:
+def GetEventData(rank: int = 10) -> List:
     """[summary]
     イベントデータを取得する
     Args:
-        isDebug (bool): DEBUG出力するかどうか
+        rank (int): ランキング順位 デフォルト10
     Returns:
         (List): イベントデータ(JSON形式)
     """
@@ -76,8 +76,8 @@ def GetEventData() -> List:
 
         if len(eventData['events']):
             result.extend(eventData['events'])
-    return result
-
-if __name__ == '__main__':
-    result = CallConnpassAPI()
-    print(result)
+    
+    sortlist = sorted(copy.deepcopy(result), key=lambda x: -x['accepted'])
+    if len(sortlist) > 10:
+        sortlist = sortlist[:10]
+    return sortlist
