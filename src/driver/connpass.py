@@ -50,7 +50,7 @@ def CallConnpassAPI(startindex: int = 1) -> Dict:
         print('Error code: ', e.code)
         raise e
 
-def GetEventData(rank: int = 10) -> List:
+def GetEventData(headers: List, rank: int = 10) -> List:
     """[summary]
     イベントデータを取得する
     Args:
@@ -58,14 +58,14 @@ def GetEventData(rank: int = 10) -> List:
     Returns:
         (List): イベントデータ(JSON形式)
     """
-    result = []
-
+    # connpassからイベントデータを抽出する
+    events = []
     eventData = CallConnpassAPI()
     results_start: int = int(eventData["results_start"])
     results_available: int = int(eventData["results_available"])
     results_returned: int = int(eventData["results_returned"])
     if len(eventData['events']):
-        result.extend(eventData['events'])
+        events.extend(eventData['events'])
     
     while results_returned == 100 and results_available > 100:
         results_start += 100
@@ -75,9 +75,20 @@ def GetEventData(rank: int = 10) -> List:
         results_returned: int = int(eventData["results_returned"])
 
         if len(eventData['events']):
-            result.extend(eventData['events'])
+            events.extend(eventData['events'])
     
-    sortlist = sorted(copy.deepcopy(result), key=lambda x: -x['accepted'])
-    if len(sortlist) > 10:
-        sortlist = sortlist[:10]
-    return sortlist
+    # 参加者数でソートしてTOP10を抽出する
+    sortlist = sorted(copy.deepcopy(events), key=lambda x: -x['accepted'])
+    if len(sortlist) > rank:
+        sortlist = sortlist[:rank]
+
+    # 表示データの成型
+    result = []
+    for event in sortlist:
+        tablerow = {}
+        for header in headers:
+            column_name: str = header['column_name']
+            header_name: str = header['header_name']
+            tablerow[header_name] = event[column_name]
+        result.append(tablerow)
+    return result
