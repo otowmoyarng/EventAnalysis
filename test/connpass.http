@@ -1,5 +1,14 @@
 ### ymd
-https://connpass.com/api/v1/event/?ymd=20220917,20220918&count=100&order=2
+https://connpass.com/api/v1/event/?ymd=20220917,20220918,20220919,20220920,20220921,20220922,20220923&count=100&order=2
 
 ### ym
 https://connpass.com/api/v1/event/?ym=202209&count=100&order=2
+
+### event_id
+https://connpass.com/api/v1/event/?event_id=256835
+
+### keyword
+https://connpass.com/api/v1/event/?keyword=python
+
+### nickname
+https://connpass.com/api/v1/event/?nickname=hidemusiam1
