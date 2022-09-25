@@ -1,12 +1,14 @@
 import setup
 setup.AddModulePath()
 
-import unittest
 from datetime import datetime, timedelta
 from typing import List, Dict
 from driver import connpass
+from mock.connpassAPI import *
+from unittest import TestCase, mock
+import unittest
 
-class TestConnpass(unittest.TestCase):
+class TestConnpass(TestCase):
     
     def test_GetTargetDate(self):
         """[summary]
@@ -24,45 +26,28 @@ class TestConnpass(unittest.TestCase):
                 
             self.assertEqual(expectDate.strftime('%Y/%m/%d'), actualDate.strftime('%Y/%m/%d'))
     
-    def test_CallConnpassAPI(self):
-        def traceEventData(events: Dict, startindex: int = 1):
-            # print(f"startindex:{str(startindex)}")
-            columns = ["event_id","title","started_at","ended_at","updated_at","limit","accepted","waiting","event_url"]
-            
-            headerText = ''
-            for column in columns:
-                if headerText != '':
-                    headerText += ","
-                headerText += column
-            # print(headerText)
-                 
-            loopCount: int = 0
-            for event in events["events"]:
-                if loopCount >= 4:
-                    break
-                
-                recordText = ''
-                for column in columns:
-                    if recordText != '':
-                        recordText += ","
-                    
-                    if isinstance(event[column], str):
-                        recordText += event[column]
-                    else:
-                        recordText += str(event[column])
-                # print(recordText)
-                loopCount += 1
-        
-        # 処理日で実行する
-        startindex: int = 1
-        traceEventData(connpass.CallConnpassAPI())
-        
-        # 処理日で実行する
-        startindex += 100
-        traceEventData(connpass.CallConnpassAPI(startindex), startindex)
+    @mock.patch("driver.connpass.CallConnpassAPI")
+    def test_CallConnpassAPI(self, mockCallConnpassAPI):
+        mockCallConnpassAPI.return_value = readDummyData()
+        result = connpass.CallConnpassAPI()
+        self.assertEqual(369, len(result['events']))
 
-    def test_GetEventData(self):
-        pass
+    @mock.patch("driver.connpass.CallConnpassAPI")
+    def test_GetEventData(self, mockCallConnpassAPI):
+        mockCallConnpassAPI.return_value = readDummyData()
+        headers = [
+            { 'column_name': 'title', 'header_name': 'イベント名' },
+            { 'column_name': 'accepted', 'header_name': '参加数' },
+            { 'column_name': 'event_url', 'header_name': 'リンク' },
+        ]
+        # rankなし
+        except_rank: int = 10
+        result = connpass.GetEventData(headers)
+        self.assertEqual(except_rank, len(result))
+        # rankあり
+        except_rank = 5
+        result = connpass.GetEventData(headers, except_rank)
+        self.assertEqual(except_rank, len(result))
 
 if __name__ == "__main__":
     unittest.main()
